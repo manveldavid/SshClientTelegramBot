@@ -70,6 +70,8 @@ public class TelegramBot
                                 cancellationTokenSource.Cancel();
                                 cancellationTokenSource.Dispose();
                                 cancellationTokenSource = new();
+cancellationTokenSources.Remove(update.Message.Chat.Username!);
+cancellationTokenSources.Add(update.Message.Chat.Username!, cancellationTokenSource);
                                 telegramBot.SendMessage(update.Message.Chat, "Stopped", replyParameters: new ReplyParameters { MessageId = update.Message.Id }, cancellationToken: cancellationTokenSource.Token);
                                 break;
                             default:
