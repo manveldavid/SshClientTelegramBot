@@ -62,17 +62,21 @@ public class TelegramBot
                         switch (update.Message.Text)
                         {
                             case "exit":
-                                await ExecuteCommandAsync(telegramBot, sshClient, update, cancellationTokenSource.Token);
+                                ExecuteCommandAsync(telegramBot, sshClient, update, cancellationTokenSource.Token);
                                 sshClient.Disconnect();
-                                telegramBot.SendMessage(update.Message.Chat, "Disconnected", replyParameters: new ReplyParameters { MessageId = update.Message.Id }, cancellationToken: cancellationTokenSource.Token);
                                 break;
                             case "stop":
                                 cancellationTokenSource.Cancel();
                                 cancellationTokenSource.Dispose();
                                 cancellationTokenSource = new();
-cancellationTokenSources.Remove(update.Message.Chat.Username!);
-cancellationTokenSources.Add(update.Message.Chat.Username!, cancellationTokenSource);
+                                cancellationTokenSources.Remove(update.Message.Chat.Username!);
+                                cancellationTokenSources.Add(update.Message.Chat.Username!, cancellationTokenSource);
                                 telegramBot.SendMessage(update.Message.Chat, "Stopped", replyParameters: new ReplyParameters { MessageId = update.Message.Id }, cancellationToken: cancellationTokenSource.Token);
+                                break;
+                            case "reboot now":
+                                ExecuteCommandAsync(telegramBot, sshClient, update, cancellationTokenSource.Token);
+                                sshClient.Disconnect();
+                                telegramBot.GetUpdates(++offset, timeout: (int)pollPeriod.TotalSeconds, cancellationToken: cancellationTokenSource.Token);
                                 break;
                             default:
                                 ExecuteCommandAsync(telegramBot, sshClient, update, cancellationTokenSource.Token);
