@@ -74,9 +74,9 @@ public class TelegramBot
                                 telegramBot.SendMessage(update.Message.Chat, "Stopped", replyParameters: new ReplyParameters { MessageId = update.Message.Id }, cancellationToken: cancellationTokenSource.Token);
                                 break;
                             case "reboot now":
+                                telegramBot.GetUpdates(++offset, timeout: (int)pollPeriod.TotalSeconds, cancellationToken: cancellationTokenSource.Token);
                                 ExecuteCommandAsync(telegramBot, sshClient, update, cancellationTokenSource.Token);
                                 sshClient.Disconnect();
-                                telegramBot.GetUpdates(++offset, timeout: (int)pollPeriod.TotalSeconds, cancellationToken: cancellationTokenSource.Token);
                                 break;
                             default:
                                 ExecuteCommandAsync(telegramBot, sshClient, update, cancellationTokenSource.Token);
