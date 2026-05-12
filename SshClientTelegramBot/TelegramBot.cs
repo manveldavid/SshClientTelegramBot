@@ -1,4 +1,4 @@
-﻿using Renci.SshNet;
+using Renci.SshNet;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -96,6 +96,50 @@ public class TelegramBot
         await telegramBot.SendChatAction(update.Message!.Chat, ChatAction.Typing, cancellationToken:cancellationToken);
         var commandResult = string.Empty;
         await Task.Run(() => commandResult = sshClient.CreateCommand(update.Message.Text!).Execute(), cancellationToken);
-        await telegramBot.SendMessage(update.Message.Chat, string.IsNullOrEmpty(commandResult) ? "No content" : "```\n" + commandResult + "\n```", ParseMode.Markdown, replyParameters: new ReplyParameters { MessageId = update.Message.Id }, cancellationToken: cancellationToken);
+        await SendMessageAsync(telegramBot, commandResult, update.Message.Chat.Id, ParseMode.Markdown, update.Message.Id, cancellationToken);
+    }
+    public async Task<Message?> SendMessageAsync(TelegramBotClient telegramBot, string text, long chatId, ParseMode parseMode, int replyMessageId = 0, CancellationToken cancellationToken = default)
+    {
+        var result = text;
+        var charLimit = 4000;
+        var message = new Message();
+
+        while (!string.IsNullOrEmpty(result))
+        {
+            var messageText = 
+                result.Length > charLimit
+                ? result.Substring(0, charLimit)
+                : result;
+
+            result = 
+                result.Length > charLimit
+                ? result.Substring(charLimit)
+                : string.Empty;
+
+            if(string.IsNullOrEmpty(messageText))
+                messageText = "No content";
+            else
+                messageText = "```\n" + messageText + "\n```";
+
+            try
+            { 
+                message = 
+                    replyMessageId != 0
+                    ? await telegramBot.SendMessage(chatId, messageText, parseMode, replyParameters: new ReplyParameters { MessageId = replyMessageId }, cancellationToken: cancellationToken)
+                    : await telegramBot.SendMessage(chatId, messageText, parseMode, cancellationToken: cancellationToken);
+            }
+            catch
+            {
+                message = 
+                    replyMessageId != 0
+                    ? await telegramBot.SendMessage(chatId, messageText, replyParameters: new ReplyParameters { MessageId = replyMessageId }, cancellationToken: cancellationToken)
+                    : await telegramBot.SendMessage(chatId, messageText, cancellationToken: cancellationToken);
+            }
+
+            await Task.Delay(300);
+            replyMessageId = 0;
+        }
+
+        return message;
     }
 }
