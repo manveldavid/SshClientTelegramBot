@@ -100,6 +100,9 @@ public class TelegramBot
     }
     public async Task<Message?> SendMessageAsync(TelegramBotClient telegramBot, string text, long chatId, ParseMode parseMode, int replyMessageId = 0, CancellationToken cancellationToken = default)
     {
+        if(string.IsNullOrEmpty(text))
+            text = "No content";
+
         var result = text;
         var charLimit = 4000;
         var message = new Message();
@@ -116,9 +119,7 @@ public class TelegramBot
                 ? result.Substring(charLimit)
                 : string.Empty;
 
-            if(string.IsNullOrEmpty(messageText))
-                messageText = "No content";
-            else
+            if(!string.IsNullOrEmpty(messageText))
                 messageText = "```\n" + messageText + "\n```";
 
             try
