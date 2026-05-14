@@ -11,6 +11,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var tgBotPollPeriodInSeconds = TimeSpan.FromSeconds(double.TryParse(Environment.GetEnvironmentVariable("TG_BOT_POLL_PERIOD_SECONDS"), out var _tgBotPollPeriodInSeconds) ? _tgBotPollPeriodInSeconds : 5d);
+        var port = int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var _port) ? _port : 22;
         var apiKey = Environment.GetEnvironmentVariable("API_KEY")!;
         var address = Environment.GetEnvironmentVariable("ADDRESS")!;
         var login = Environment.GetEnvironmentVariable("LOGIN")!;
@@ -23,6 +24,7 @@ public class Program
                 new TelegramBot().RunAsync(
                         apiKey,
                         address,
+                        port,
                         login,
                         password,
                         admins,

@@ -10,7 +10,7 @@ public class TelegramBot
     private Dictionary<string, SshClient> sshClients = new();
     private Dictionary<string, CancellationTokenSource> cancellationTokenSources = new();
     private HashSet<string> allowedUsers = new();
-    public async Task RunAsync(string apiKey, string address, string login, string password, string admins, TimeSpan pollPeriod, CancellationToken cancellationToken)
+    public async Task RunAsync(string apiKey, string address, int port, string login, string password, string admins, TimeSpan pollPeriod, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(apiKey))
             return;
@@ -21,7 +21,7 @@ public class TelegramBot
 
         foreach (var admin in allowedUsers)
         {
-            sshClients.Add(admin, new(address, login, password));
+            sshClients.Add(admin, new(address, port, login, password));
             cancellationTokenSources.Add(admin, new());
         }
 
